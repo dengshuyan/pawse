@@ -1,6 +1,6 @@
 # Pawse - Cat Typing Detector and Blocker
 
-<img src="pawse_icon.png" alt="Pawse Icon" width="100"/>
+<img src="pawse_icon.png" alt="Pawse Icon" width="16"/>
 
 Pawse is a macOS menu bar application that detects when your cat walks on your keyboard and:
 1. Plays a meow sound
