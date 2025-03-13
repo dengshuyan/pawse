@@ -122,4 +122,4 @@ When cat typing is detected, Pawse can block keyboard events by converting them 
 ## Acknowledgements
 
 - Meow sound from SOUND_GARAGE
-- Special thanks to all the cats who helped test this application by walking on keyboards 
+- Special thanks to all the cats who helped test this application by walking on keyboards # pawse
