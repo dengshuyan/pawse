@@ -32,12 +32,24 @@ Pawse is a macOS menu bar application that detects when your cat walks on your k
 ## Requirements
 
 - macOS 10.14 or later
-- Python 3.6 or later
-- Accessibility permissions (required for keystroke monitoring and blocking)
+- Python 3.6 or later (only needed for building from source)
+- Required permissions:
+  - Accessibility permissions (for keystroke monitoring and blocking)
+  - Input Monitoring permissions (for keyboard event detection)
 
 ## Installation
 
-### Option 1: From Source
+### Option 1: Using the Pre-built App (Recommended)
+
+1. Download the latest release of Pawse.app from the releases page
+2. Move Pawse.app to your Applications folder
+3. Open System Settings > Privacy & Security
+4. Grant the following permissions to Pawse:
+   - Accessibility: System Settings > Privacy & Security > Accessibility
+   - Input Monitoring: System Settings > Privacy & Security > Input Monitoring
+5. Launch Pawse from your Applications folder
+
+### Option 2: From Source
 
 1. Clone this repository:
    ```
@@ -47,45 +59,28 @@ Pawse is a macOS menu bar application that detects when your cat walks on your k
 
 2. Install the required dependencies:
    ```
-   pip3 install rumps pyobjc playsound
+   pip3 install rumps pyobjc playsound py2app
    ```
 
-3. Run the application:
+3. Build the application:
    ```
-   python3 pawse_menu.py
-   ```
-
-### Option 2: Using the Installer (Coming Soon)
-
-A packaged installer will be available soon.
-
-### Option 3: Building the App Yourself
-
-You can build a standalone macOS application (.app) and create a DMG installer:
-
-1. Install py2app and other required tools:
-   ```
-   pip3 install py2app
-   brew install create-dmg
-   ```
-
-2. Build the application:
-   ```
-   python3 setup_app.py py2app
+   python3 setup.py py2app
    ```
    This will create a standalone application in the `dist` folder.
 
-3. Create a DMG installer (optional):
-   ```
-   ./create_dmg.sh
-   ```
-   This will create a DMG installer file that you can distribute.
+4. Move Pawse.app from the `dist` folder to your Applications folder
+
+5. Grant required permissions:
+   - Open System Settings > Privacy & Security
+   - Add Pawse to both Accessibility and Input Monitoring permissions
+   - Make sure both checkboxes are checked
 
 ## Usage
 
-1. **First Run**: When you first run Pawse, it will request accessibility permissions
-   - Follow the prompts to open System Preferences > Security & Privacy > Privacy > Accessibility
-   - Add the application to the list of allowed apps
+1. **First Run**: When you first run Pawse, it will request necessary permissions
+   - Follow the prompts to open System Settings > Privacy & Security
+   - Add Pawse to both Accessibility and Input Monitoring permissions
+   - Make sure both checkboxes are checked
 
 2. **Menu Bar Controls**:
    - Click the paw icon in the menu bar to access controls
@@ -111,9 +106,35 @@ When cat typing is detected, Pawse can block keyboard events by converting them 
 
 ## Troubleshooting
 
-- **Keystroke Blocking Not Working**: Make sure Pawse has accessibility permissions
-- **Sound Not Playing**: Ensure your system volume is on and the sound is enabled in Pawse
-- **High CPU Usage**: If you notice high CPU usage, try restarting the application
+- **App Not Working**: 
+  - Make sure both Accessibility and Input Monitoring permissions are granted
+  - Try removing and re-adding the permissions
+  - Restart the application after granting permissions
+
+- **Keystroke Blocking Not Working**: 
+  - Check if Accessibility permissions are granted
+  - Try removing and re-adding the Accessibility permission
+  - Restart the application
+
+- **Sound Not Playing**: 
+  - Ensure your system volume is on
+  - Check if sound is enabled in Pawse's menu
+  - Verify that the meow.mp3 file is present in the app bundle
+
+- **High CPU Usage**: 
+  - If you notice high CPU usage, try restarting the application
+  - Check if the app is running multiple instances
+
+## Distribution
+
+To distribute Pawse to other users:
+
+1. Build the application using `python3 setup.py py2app`
+2. Share the `Pawse.app` from the `dist` folder
+3. Instruct users to:
+   - Move Pawse.app to their Applications folder
+   - Grant both Accessibility and Input Monitoring permissions
+   - Launch the app from Applications
 
 ## License
 
@@ -122,4 +143,6 @@ When cat typing is detected, Pawse can block keyboard events by converting them 
 ## Acknowledgements
 
 - Meow sound from SOUND_GARAGE
-- Special thanks to all the cats who helped test this application by walking on keyboards # pawse
+- Special thanks to all the cats who helped test this application by walking on keyboards
+
+<img src="cat_typing.JPG" alt="Special Thanks" width="48"/>

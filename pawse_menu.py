@@ -164,32 +164,33 @@ def play_meow():
     global last_meow_time, sound_playing
     current_time = time.time()
     
+    print(f"Attempting to play meow sound. Sound enabled: {sound_enabled}, Last meow time: {last_meow_time}, Current time: {current_time}")
+    
     # Only play if sound is enabled and enough time has passed since the last meow
     if sound_enabled and current_time - last_meow_time >= MIN_MEOW_INTERVAL and not sound_playing:
         try:
+            # Check if sound file exists
+            if not os.path.exists(MEOW_SOUND):
+                print(f"Error: Sound file not found at {MEOW_SOUND}")
+                return
+                
+            print(f"Playing sound file: {MEOW_SOUND}")
             sound_playing = True
-            # Use a separate thread to play the sound to avoid blocking
-            sound_thread = threading.Thread(target=_play_sound_thread, daemon=True)
-            sound_thread.start()
+            # Use afplay with full path
+            result = subprocess.run(["afplay", os.path.abspath(MEOW_SOUND)], check=False, capture_output=True, text=True)
+            if result.returncode != 0:
+                print(f"Error playing sound: {result.stderr}")
             last_meow_time = current_time
+            print("Sound played successfully")
         except Exception as e:
-            print("Error starting sound thread:", e)
+            print(f"Error playing sound: {str(e)}")
+        finally:
             sound_playing = False
-
-def _play_sound_thread():
-    global sound_playing
-    try:
-        # Try to play the sound with playsound
-        playsound(MEOW_SOUND)
-    except Exception as e:
-        print("Error playing sound:", e)
-        # Fallback to system sound if playsound fails
-        try:
-            subprocess.run(["afplay", MEOW_SOUND], check=False)
-        except Exception as e2:
-            print("Fallback sound also failed:", e2)
-    finally:
-        sound_playing = False
+    else:
+        print("Skipping sound playback:", 
+              "sound_enabled=" + str(sound_enabled),
+              "time_since_last=" + str(current_time - last_meow_time),
+              "sound_playing=" + str(sound_playing))
 
 # Function to check if keys are adjacent
 def are_keys_adjacent(keys):
@@ -288,6 +289,8 @@ def event_tap_callback(proxy, event_type, event, refcon):
     keycode = CGEventGetIntegerValueField(event, kCGKeyboardEventKeycode)
     current_time = time.time()
     
+    print(f"Event type: {event_type}, keycode: {keycode}")
+    
     # If we're in blocking mode and the block duration hasn't expired
     if blocking_enabled and cat_typing_detected and current_time - block_start_time < BLOCK_DURATION:
         print(f"Blocking keystroke (keycode: {keycode}) - cat typing protection active")
@@ -306,12 +309,13 @@ def event_tap_callback(proxy, event_type, event, refcon):
         # Add to key press history for rapid typing detection
         key_press_history.append(current_time)
         
-        print(f"Key pressed: {keycode}, total keys: {len(pressed_keys)}")
+        print(f"Key pressed: {keycode}, total pressed keys: {len(pressed_keys)}, history length: {len(key_press_history)}")
         
         # Check if it's cat typing
         if is_cat_typing():
+            print("Cat typing detected in callback!")
             if not cat_typing_detected:
-                print("Cat typing detected! Meow!")
+                print("First detection of cat typing in this sequence!")
                 cat_typing_detected = True
                 aggressive_blocking = True
                 block_start_time = current_time
@@ -327,7 +331,8 @@ def event_tap_callback(proxy, event_type, event, refcon):
                 # Create an aggressive blocker
                 create_aggressive_blocker()
                 
-                # Play meow sound
+                # Play meow sound in a separate thread
+                print("Starting meow sound thread")
                 threading.Thread(target=play_meow, daemon=True).start()
                 
                 # Show notification only once per detection
@@ -343,6 +348,7 @@ def event_tap_callback(proxy, event_type, event, refcon):
                     else:
                         notification_text = "Cat typing detected! (Both sound and blocking are disabled)"
                     
+                    print(f"Showing notification: {notification_text}")
                     threading.Thread(
                         target=lambda: rumps.notification("Pawse", "🐾", notification_text),
                         daemon=True
@@ -357,7 +363,7 @@ def event_tap_callback(proxy, event_type, event, refcon):
         # Remove the key from pressed keys
         if keycode in pressed_keys:
             del pressed_keys[keycode]
-            print(f"Key released: {keycode}, remaining keys: {len(pressed_keys)}")
+            print(f"Key released: {keycode}, remaining pressed keys: {len(pressed_keys)}")
         
         # If we're in cat typing mode, also block key up events
         if blocking_enabled and (cat_typing_detected or aggressive_blocking):
@@ -365,10 +371,10 @@ def event_tap_callback(proxy, event_type, event, refcon):
             return block_keyboard_event(event)
     
     # Clean up old key presses (older than 1 second)
-    for k in list(pressed_keys.keys()):
-        if current_time - pressed_keys[k] > 1.0:
-            del pressed_keys[k]
-            print(f"Removing stale key: {k}")
+    old_keys = [k for k in pressed_keys.keys() if current_time - pressed_keys[k] > 1.0]
+    for k in old_keys:
+        del pressed_keys[k]
+        print(f"Removing stale key: {k}")
     
     # Allow the keystroke to pass through
     return event

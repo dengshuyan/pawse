@@ -1,34 +1,36 @@
-from setuptools import setup, find_packages
+from setuptools import setup
+
+APP = ['pawse_menu.py']
+DATA_FILES = ['meow.mp3', 'pawse_icon.png']
+OPTIONS = {
+    'argv_emulation': False,
+    'iconfile': 'pawse_icon.png',
+    'plist': {
+        'CFBundleName': 'Pawse',
+        'CFBundleDisplayName': 'Pawse',
+        'CFBundleIdentifier': 'com.pawse.app',
+        'CFBundleVersion': '1.0.0',
+        'CFBundleShortVersionString': '1.0.0',
+        'LSMinimumSystemVersion': '10.10',
+        'LSApplicationCategoryType': 'public.app-category.utilities',
+        'NSHighResolutionCapable': True,
+        'NSAppleEventsUsageDescription': 'Pawse needs to monitor keyboard events to detect cat typing.',
+        'NSAccessibilityUsageDescription': 'Pawse needs accessibility access to block keyboard input when cat typing is detected.',
+        'NSMicrophoneUsageDescription': 'Pawse needs microphone access to play sound effects.',
+        'LSUIElement': True,  # This makes it a menu bar app
+    },
+    'packages': ['rumps'],
+}
 
 setup(
-    name="pawse",
-    version="1.0.0",
-    description="A cat typing detector and blocker for macOS",
-    author="Alina",
-    author_email="your.email@example.com",
-    url="https://github.com/yourusername/pawse",
-    packages=find_packages(),
+    app=APP,
+    data_files=DATA_FILES,
+    options={'py2app': OPTIONS},
+    setup_requires=['py2app'],
     install_requires=[
-        "rumps>=0.4.0",
-        "pyobjc>=9.2",
-        "playsound>=1.3.0",
+        'rumps>=0.4.0',
+        'pyobjc-framework-Quartz>=9.2',
+        'pyobjc-framework-Cocoa>=9.2',
+        'playsound>=1.3.0',
     ],
-    package_data={
-        "pawse": ["meow.mp3", "pawse_icon.png"],
-    },
-    entry_points={
-        "console_scripts": [
-            "pawse=pawse_menu:main",
-        ],
-    },
-    classifiers=[
-        "Development Status :: 4 - Beta",
-        "Environment :: MacOS X",
-        "Intended Audience :: End Users/Desktop",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: MacOS :: MacOS X",
-        "Programming Language :: Python :: 3",
-        "Topic :: Utilities",
-    ],
-    python_requires=">=3.6",
 ) 
